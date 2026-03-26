@@ -1,4 +1,6 @@
-# WhatsApp Number Filter
+rkdown# 📱 WhatsApp Number Filter
+
+**⚠️ Status: No Longer Maintained / Abandoned**
 
 > This implementation uses [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) to check if phone numbers are registered on WhatsApp.
 
