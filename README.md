@@ -21,12 +21,11 @@ A fast, interactive, and powerful CLI-based tool to mass-filter and check if pho
 
 ## ✨ Key Features
 
-- **💻 Premium CLI Interface:** Highly professional terminal UI with colored status indicators and tabular data formatting.
-- **🚀 Bulk Checking:** Filter thousands of numbers automatically from a text file.
-- **📝 Auto-Reporting:** Automatically saves active numbers to `active_numbers.txt` with timestamps.
-- **🛡️ Anti-Ban System:** Built-in dynamic sleep delays to prevent rate-limiting or blocks.
-- **🤖 Smart Formatting:** Automatically sanitizes input and appends default country codes (e.g., `62`).
-- **💾 Session Persistence:** Scan the QR code once, and your session is saved securely. Easy logout menu included.
+- **CLI Interface:** Highly professional terminal UI with colored status indicators and tabular data formatting.
+- **Bulk Checking:** Filter thousands of numbers automatically from a text file.
+- **Auto-Reporting:** Automatically saves active numbers to `active_numbers.txt` with timestamps.
+- **Smart Formatting:** Automatically sanitizes input and appends default country codes (e.g., `62`).
+- **Session Persistence:** Scan the QR code once, and your session is saved securely. Easy logout menu included.
 
 ## 📦 Installation
 
@@ -51,7 +50,6 @@ npm install
 # numbers.txt example:
 081234567890
 6285712345678
-+628876543210
 ```
 
 2. Run the application:
