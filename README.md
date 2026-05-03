@@ -24,8 +24,8 @@ A fast, interactive, and powerful CLI-based tool to mass-filter and check if pho
 - **CLI Interface:** Highly professional terminal UI with colored status indicators and tabular data formatting.
 - **Bulk Checking:** Filter thousands of numbers automatically from a text file.
 - **Auto-Reporting:** Automatically saves active numbers to `active_numbers.txt` with timestamps.
-- **🤖 Smart Formatting:** Auto-cleans inputs (removes `+`, `-`, spaces). Automatically replaces local leading `0`s with a configurable default country code (default: `62`). Compatible globally!
-- **💾 Session Persistence:** Scan the QR code once, and your session is saved securely. Easy logout menu included.
+- **Smart Formatting:** Auto-cleans inputs (removes `+`, `-`, spaces). Automatically replaces local leading `0`s with a configurable default country code (default: `62`). Compatible globally!
+- **Session Persistence:** Scan the QR code once, and your session is saved securely. Easy logout menu included.
 
 ## 📦 Installation
 

@@ -182,7 +182,7 @@ class App {
                const isRegistered = await this.client.isRegisteredUser(formattedTarget);
 
                if (isRegistered) {
-                  console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.bgGreen.black.bold('   ACTIVE   ')} `);
+                  console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.green.bold('ACTIVE')} `);
                   activeNumbers.push(number);
                   activeCount++;
                } else {
@@ -246,7 +246,7 @@ class App {
 
          console.log(chalk.gray('-------------------------------------------------------'));
          if (isRegistered) {
-            console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.bgGreen.black.bold('   ACTIVE   ')} `);
+            console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.green.bold('ACTIVE')} `);
          } else {
             console.log(` ${chalk.gray(number.padEnd(22))} | ${chalk.bgRed.white.bold(' UNREGISTERED ')} `);
          }

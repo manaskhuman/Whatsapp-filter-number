@@ -5,3 +5,4 @@ session.json
 .auth_info_session.json
 package-lock.json
 .env
+active_numbers.txt
