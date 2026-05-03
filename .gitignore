@@ -1,6 +1,10 @@
 node_modules/
+.wwebjs_auth/
+.wwebjs_cache/
 session.json
 .auth_info_session.json
 package-lock.json
 .env
-session-whatsapp-checker
+
+
+
