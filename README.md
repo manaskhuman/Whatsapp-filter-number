@@ -1,50 +1,79 @@
-📱 WhatsApp Number Filter
+<div align="center">
 
-**⚠️ Status: No Longer Maintained / Abandoned**
+# 📱 WhatsApp Number Filter
 
-> This implementation uses [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) to check if phone numbers are registered on WhatsApp.
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D%2014.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/rahmansurya/Whatsapp-filter-number/commits/main)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**00. Intro**
-WhatsApp number filter tool comes in handy to check if a particular phone number is on WhatsApp or not.
+A fast, interactive, and powerful CLI-based tool to mass-filter and check if phone numbers are registered on WhatsApp. 
 
-You just need to enter your phone numbers into the "nomor.txt" file for bulk number checking.
+*Powered by the actively maintained [wwebjs/whatsapp-web.js](https://github.com/wwebjs/whatsapp-web.js) library.*
 
-**01. How to use ?**
-- Clone or download this repo
-- Enter to the project directory
-- Run `npm install`
-- Run `node app.js`
-- Don't forget to input list of numbers (country code without +) in file "nomor.txt"     
+</div>
 
-Example format in nomor.txt:
+---
+
+## 🚨 Project Status: Revived & 100% Working
+> **Good news!** This repository has been completely overhauled. We migrated from the abandoned original library to the actively maintained `wwebjs` fork. All "No Valid QR Code" and Multi-Device versioning issues have been fully resolved.
+
+---
+
+## ✨ Key Features
+
+- **💻 Premium CLI Interface:** Highly professional terminal UI with colored status indicators and tabular data formatting.
+- **🚀 Bulk Checking:** Filter thousands of numbers automatically from a text file.
+- **📝 Auto-Reporting:** Automatically saves active numbers to `active_numbers.txt` with timestamps.
+- **🛡️ Anti-Ban System:** Built-in dynamic sleep delays to prevent rate-limiting or blocks.
+- **🤖 Smart Formatting:** Automatically sanitizes input and appends default country codes (e.g., `62`).
+- **💾 Session Persistence:** Scan the QR code once, and your session is saved securely. Easy logout menu included.
+
+## 📦 Installation
+
+Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+```bash
+# Clone the repository
+git clone https://github.com/rahmansurya/Whatsapp-filter-number.git
+
+# Navigate into the directory
+cd Whatsapp-filter-number
+
+# Install all dependencies
+npm install
 ```
-6283XXXXXXXXX 
-6282XXXXXXXXX 
-6285XXXXXXXXX
+
+## 🚀 Quick Start
+
+1. Create a `numbers.txt` file in the root directory and add the numbers you want to check (one per line).
+
+```text
+# numbers.txt example:
+081234567890
+6285712345678
++628876543210
 ```
 
-**02. Process**
-- Wait for connecting to WhatsApp Web
-- Scan the QR Code with your phone
-- The tool will automatically check your number list
-- Results will be displayed showing AKTIF (active) or NON-WA (not on WhatsApp)
+2. Run the application:
 
-**03. Features**
-- Uses WhatsApp Web client for reliable checking
-- Automatic session persistence (no need to scan QR every time)
-- Rate limiting to avoid being blocked
-- Clear status indicators for each number
-- Supports Indonesian phone number formatting
+```bash
+npm start
+# or
+node app.js
+```
 
-**04. Requirements**
-- Node.js (v14 or higher recommended)
-- Chrome/Chromium browser (automatically handled by Puppeteer)
-- Active WhatsApp account for scanning QR code
+3. **Link Device:** A QR code will appear in your terminal. Open WhatsApp on your **Primary Phone**, go to *Linked Devices*, and scan the QR code.
+4. Once authenticated, follow the interactive on-screen menu to start filtering!
 
-**05. Notes**
-- The first run requires QR code scanning
-- Subsequent runs will use saved session data
-- Add delays between checks to avoid rate limiting
-- Tool automatically formats Indonesian numbers (adds 62 country code)
+## 💡 Troubleshooting
 
-![Screenshot](https://user-images.githubusercontent.com/3745442/129669674-b924db39-0ec6-4556-bc84-581a2a926666.png)
+- **No Valid QR Code:** If your phone refuses to scan the QR code, try maximizing your terminal window or zooming out (`Ctrl` + `-`) to ensure the QR code renders perfectly without line breaks. Ensure you are using your Primary Device to scan.
+- **Session Issues:** Use the "Logout Device" feature in the main menu to cleanly wipe your session before scanning with a new device.
+
+## ⚖️ Disclaimer
+This tool is strictly for educational purposes. Automated bulk checking may violate WhatsApp's Terms of Service. Use at your own risk. The developer is not responsible for any blocked or banned accounts.
+
+---
+<div align="center">
+Made with ❤️ by <a href="https://github.com/rahmansurya">Rahman Surya</a>
+</div>

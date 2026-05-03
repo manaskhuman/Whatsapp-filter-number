@@ -1,188 +1,280 @@
-const express = require('express');
-const session = require('express-session');
-const http = require('http');
-const { Server } = require("socket.io");
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const path = require('path');
-const fs = require('fs');
-const helmet = require('helmet');
 const qrcode = require('qrcode-terminal');
-const chalk = require("chalk");
+const chalk = require('chalk');
+const fs = require('fs');
+const readline = require('readline');
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const rl = readline.createInterface({
+   input: process.stdin,
+   output: process.stdout
+});
 
-const PORT = process.env.PORT || 3000;
+const question = (query) => new Promise(resolve => rl.question(query, resolve));
 
 class App {
    constructor() {
       this.client = null;
-      this.setupExpress();
+      this.isAuthenticated = false;
    }
 
-   setupExpress() {
-      // Security middleware
-      app.use(helmet());
-      
-      // Session middleware
-      app.use(session({
-         secret: 'whatsapp-checker-secret',
-         resave: false,
-         saveUninitialized: true,
-         cookie: { secure: false }
-      }));
-
-      // Parse JSON bodies
-      app.use(express.json());
-      app.use(express.urlencoded({ extended: true }));
-
-      // Serve static files
-      app.use(express.static(path.join(__dirname, 'public')));
-
-      // Routes
-      app.get('/', (req, res) => {
-         res.send('WhatsApp Number Checker is running!');
-      });
-
-      // Socket.IO connection handling
-      io.on('connection', (socket) => {
-         console.log('A user connected');
-         
-         socket.on('disconnect', () => {
-            console.log('User disconnected');
-         });
-      });
+   clearScreen() {
+      console.clear();
+      console.log(chalk.cyan.bold('='.repeat(55)));
+      console.log(chalk.cyan.bold('        WHATSAPP NUMBER FILTER '));
+      console.log(chalk.cyan.bold('='.repeat(55) + '\n'));
    }
 
-   async listen() {
+   async start() {
       try {
-         // Initialize WhatsApp Web client without Puppeteer/Chromium
+         this.clearScreen();
+         console.log(chalk.yellow('Starting WhatsApp Web Client...'));
+
          this.client = new Client({
             authStrategy: new LocalAuth({
-               clientId: "whatsapp-checker"
+               clientId: 'whatsapp-checker'
             }),
-            // Remove puppeteer configuration to avoid Chromium dependency
+            puppeteer: {
+               args: ['--no-sandbox', '--disable-setuid-sandbox']
+            },
             webVersionCache: {
-               type: 'remote',
-               remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+               type: 'local'
             }
          });
 
-         // Event listeners
          this.client.on('qr', (qr) => {
-            console.log('QR Code generated, scan it with your phone');
+            console.log(chalk.cyan('\n📱 Scan the QR code using your primary device:\n'));
             qrcode.generate(qr, { small: true });
          });
 
-         this.client.on('ready', async () => {
-            console.log(`${chalk.green("✓")} WhatsApp Web Client is ready!`);
-            
-            // Get client info
-            const clientInfo = this.client.info;
-            console.log(`${chalk.green("✓")} Ready - using Account Name: ${clientInfo.pushname || 'Unknown'}`);
-            console.log(`${chalk.green("✓")} Ready - using Number: ${clientInfo.wid.user || 'Unknown'}`);
-            
-            // Start checking numbers after client is ready
-            await this.checkNumbers();
+         this.client.on('authenticated', () => {
+            console.log(`${chalk.green('✓')} Authentication successful`);
          });
 
-         this.client.on('authenticated', () => {
-            console.log(`${chalk.green("✓")} WhatsApp Web Client authenticated`);
+         this.client.on('ready', async () => {
+            this.isAuthenticated = true;
+            const clientInfo = this.client.info;
+
+            this.clearScreen();
+            console.log(`${chalk.green('✓')} Client connected successfully`);
+            console.log(`${chalk.cyan('•')} Account : ${chalk.white(clientInfo?.pushname || 'Unknown')}`);
+            console.log(`${chalk.cyan('•')} Number  : ${chalk.white(clientInfo?.wid?.user || 'Unknown')}\n`);
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            this.showMenu();
          });
 
          this.client.on('auth_failure', (msg) => {
-            console.error(`${chalk.red("✗")} Authentication failed:`, msg);
+            console.log(`\n${chalk.bgRed.white.bold(' ✗ ERROR ')} Authentication failed: ${msg}`);
+            this.isAuthenticated = false;
          });
 
          this.client.on('disconnected', (reason) => {
-            console.log(`${chalk.yellow("!")} WhatsApp Web Client disconnected:`, reason);
+            console.log(`\n${chalk.bgYellow.black.bold(' ! WARNING ')} Client disconnected: ${reason}`);
+            this.isAuthenticated = false;
+            console.log(chalk.gray('Type anything and press Enter to exit...'));
          });
 
-         // Initialize the client
          await this.client.initialize();
 
       } catch (error) {
-         console.error('Error in listen:', error);
+         console.error(`\n${chalk.bgRed.white.bold(' ✗ FATAL ')} Failed to start application:`, error.message);
       }
    }
 
-   async checkNumbers() {
+   async showMenu() {
+      this.clearScreen();
+      console.log(chalk.yellow.bold('MAIN MENU '));
+      console.log(chalk.gray('-------------------------------------------------------'));
+      console.log(`  ${chalk.cyan.bold('[1]')} Check Numbers from File ${chalk.gray('(numbers.txt)')}`);
+      console.log(`  ${chalk.cyan.bold('[2]')} Check Number Manually`);
+      console.log(`  ${chalk.cyan.bold('[3]')} Logout Device`);
+      console.log(`  ${chalk.cyan.bold('[4]')} Exit Application`);
+      console.log(chalk.gray('-------------------------------------------------------\n'));
+
+      const answer = await question(chalk.white.bold(' ❯ Select menu (1-4): '));
+
+      switch (answer.trim()) {
+         case '1':
+            await this.checkNumbersTxt();
+            break;
+         case '2':
+            await this.checkManual();
+            break;
+         case '3':
+            await this.logoutDevice();
+            break;
+         case '4':
+            console.log(chalk.green('\n Exiting application. Goodbye!\n'));
+            await this.client.destroy();
+            process.exit(0);
+            break;
+         default:
+            console.log(chalk.red('\n✗ Invalid selection! Please try again.'));
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            this.showMenu();
+      }
+   }
+
+   formatNumber(number) {
+      let formattedNumber = number.trim().replace(/^\+/, '');
+
+      if (!formattedNumber.startsWith('62')) {
+         if (formattedNumber.startsWith('0')) {
+            formattedNumber = '62' + formattedNumber.substring(1);
+         } else {
+            formattedNumber = '62' + formattedNumber;
+         }
+      }
+
+      return formattedNumber;
+   }
+
+   async checkNumbersTxt() {
       try {
-         const filesTxt = "nomor.txt";
-         
+         this.clearScreen();
+         const filesTxt = 'numbers.txt';
+         const reportTxt = 'active_numbers.txt';
+
          if (!fs.existsSync(filesTxt)) {
-            console.log(`${chalk.red("✗")} File ${filesTxt} not found!`);
-            process.exit(1);
+            console.log(`${chalk.bgRed.white.bold(' ✗ ERROR ')} File ${chalk.yellow(filesTxt)} not found`);
+            await question(chalk.gray('\nPress Enter to return to menu...'));
+            return this.showMenu();
          }
 
-         const numberRaw = fs.readFileSync(filesTxt, 'utf8');	
-         const numberlist = numberRaw.replace(/\r/g, " ").replace(/\//g, "").replace(/\n/g, "").replace(/^\s*/, '').split(" ").filter(num => num.trim() !== '');
-         
-         console.log(`[${chalk.yellow('Work')}] Nomor WA yang di cek ada ${numberlist.length} nomor...`);
+         const numberRaw = fs.readFileSync(filesTxt, 'utf8');
+         const numberlist = numberRaw
+            .replace(/\r/g, ' ')
+            .replace(/\//g, '')
+            .replace(/\n/g, '')
+            .replace(/^\s*/, '')
+            .split(' ')
+            .filter(num => num.trim() !== '');
 
-         // Check numbers with delay to avoid rate limiting
+         if (numberlist.length === 0) {
+            console.log(`${chalk.bgYellow.black.bold(' ! WARNING ')} File ${chalk.yellow(filesTxt)} is empty`);
+            await question(chalk.gray('\nPress Enter to return to menu...'));
+            return this.showMenu();
+         }
+
+         console.log(chalk.yellow.bold(` CHECKING ${numberlist.length} NUMBERS... \n`));
+
+         // Tabular Header
+         console.log(chalk.cyan.bold(` ${'PHONE NUMBER'.padEnd(22)} | STATUS `));
+         console.log(chalk.gray('-------------------------------------------------------'));
+
+         let activeCount = 0;
+         let activeNumbers = [];
+
          for (let i = 0; i < numberlist.length; i++) {
-            const number = numberlist[i].trim();
-            if (number) {
-               try {
-                  // Format number properly for whatsapp-web.js
-                  let formattedNumber = number;
-                  
-                  // Remove any existing country code formatting
-                  formattedNumber = formattedNumber.replace(/^\+/, '');
-                  
-                  // Add country code if not present (assuming Indonesian numbers)
-                  if (!formattedNumber.startsWith('62')) {
-                     if (formattedNumber.startsWith('0')) {
-                        formattedNumber = '62' + formattedNumber.substring(1);
-                     } else {
-                        formattedNumber = '62' + formattedNumber;
-                     }
-                  }
-                  
-                  // Format for WhatsApp Web (add @c.us)
-                  const formattedTarget = formattedNumber + '@c.us';
-                  
-                  // Check if number is registered on WhatsApp
-                  const isRegistered = await this.client.isRegisteredUser(formattedTarget);
-                  
-                  if (isRegistered) {
-                     console.log(chalk.blue.bold(number, '|AKTIF'));
-                  } else {
-                     console.log(chalk.bgRed(number, '|NON-WA'));
-                  }
-               } catch (error) {
-                  console.log(chalk.red(number, '|ERROR:', error.message));
+            const number = numberlist[i];
+
+            try {
+               const formattedNumber = this.formatNumber(number);
+               const formattedTarget = formattedNumber + '@c.us';
+
+               const isRegistered = await this.client.isRegisteredUser(formattedTarget);
+
+               if (isRegistered) {
+                  console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.bgGreen.black.bold('   ACTIVE   ')} `);
+                  activeNumbers.push(number);
+                  activeCount++;
+               } else {
+                  console.log(` ${chalk.gray(number.padEnd(22))} | ${chalk.bgRed.white.bold(' UNREGISTERED ')} `);
                }
-               
-               // Add delay between requests to avoid rate limiting
-               if (i < numberlist.length - 1) {
-                  await new Promise(resolve => setTimeout(resolve, 3000)); // Increased delay for stability
-               }
+
+            } catch (error) {
+               console.log(` ${chalk.red(number.padEnd(22))} | ${chalk.bgRed.white.bold('   ERROR   ')} `);
+            }
+
+            if (i < numberlist.length - 1) {
+               await new Promise(resolve => setTimeout(resolve, 3000));
             }
          }
 
-         console.log("Checking completed. Bye...");
-         
-         // Destroy the client and exit
-         await this.client.destroy();
-         process.exit(0);
+         console.log(chalk.gray('-------------------------------------------------------'));
+
+         if (activeNumbers.length > 0) {
+            const timeStr = new Date().toLocaleString('id-ID');
+            let content = `\n--- Report: ${timeStr} ---\n`;
+            content += activeNumbers.join('\n') + '\n';
+
+            fs.appendFileSync(reportTxt, content);
+            console.log(`\n${chalk.green('✓')} Saved ${chalk.bold(activeCount)} active numbers to ${chalk.cyan(reportTxt)}`);
+         } else {
+            console.log(`\n${chalk.yellow('!')} No active numbers found`);
+         }
+
+         console.log(chalk.green('✓ Checking completed.'));
+         await question(chalk.gray('\nPress Enter to return to menu...'));
+         this.showMenu();
 
       } catch (error) {
-         console.error('Error in checkNumbers:', error);
-         await this.client.destroy();
-         process.exit(1);
+         console.error(`\n${chalk.bgRed.white.bold(' ✗ ERROR ')} Error while checking numbers:`, error.message);
+         await question(chalk.gray('\nPress Enter to return to menu...'));
+         this.showMenu();
       }
    }
 
-   startServer() {
-      server.listen(PORT, () => {
-         console.log(`${chalk.green("✓")} Express server running on port ${PORT}`);
-         this.listen(); // Start WhatsApp client after server starts
-      });
+   async checkManual() {
+      this.clearScreen();
+      console.log(chalk.yellow.bold(' MANUAL NUMBER CHECK \n'));
+
+      const number = await question(
+         chalk.cyan(' ❯ Enter number ') + chalk.gray('(example: 0812... / 62812...) : ')
+      );
+
+      if (!number || number.trim() === '') {
+         console.log(chalk.red('\n✗ Number cannot be empty'));
+         await question(chalk.gray('\nPress Enter to return to menu...'));
+         return this.showMenu();
+      }
+
+      console.log(chalk.gray('\nChecking number...\n'));
+
+      try {
+         const formattedNumber = this.formatNumber(number);
+         const formattedTarget = formattedNumber + '@c.us';
+
+         const isRegistered = await this.client.isRegisteredUser(formattedTarget);
+
+         console.log(chalk.gray('-------------------------------------------------------'));
+         if (isRegistered) {
+            console.log(` ${chalk.white(number.padEnd(22))} | ${chalk.bgGreen.black.bold('   ACTIVE   ')} `);
+         } else {
+            console.log(` ${chalk.gray(number.padEnd(22))} | ${chalk.bgRed.white.bold(' UNREGISTERED ')} `);
+         }
+         console.log(chalk.gray('-------------------------------------------------------'));
+
+      } catch (error) {
+         console.log(chalk.red(`\n✗ ERROR: ${error.message}`));
+      }
+
+      await question(chalk.gray('\nPress Enter to return to menu...'));
+      this.showMenu();
+   }
+
+   async logoutDevice() {
+      console.log('');
+      const confirm = await question(
+         chalk.red(' ❯ Are you sure you want to logout? You will need to scan the QR code again. (y/n): ')
+      );
+
+      if (confirm.toLowerCase() === 'y') {
+         try {
+            console.log(chalk.yellow('\n Logging out...'));
+            await this.client.logout();
+            console.log(chalk.green('\n✓ Logout successful. Please restart the application to log in again.\n'));
+            process.exit(0);
+         } catch (error) {
+            console.log(chalk.red(`\n✗ Error while logging out: ${error.message}`));
+            await question(chalk.gray('\nPress Enter to return to menu...'));
+            this.showMenu();
+         }
+      } else {
+         this.showMenu();
+      }
    }
 }
 
 const whatsappApp = new App();
-whatsappApp.startServer();
+whatsappApp.start();
