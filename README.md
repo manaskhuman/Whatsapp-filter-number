@@ -71,7 +71,4 @@ node app.js
 ## ⚖️ Disclaimer
 This tool is strictly for educational purposes. Automated bulk checking may violate WhatsApp's Terms of Service. Use at your own risk. The developer is not responsible for any blocked or banned accounts.
 
----
-<div align="center">
-Made with ❤️ by <a href="https://github.com/rahmansurya">Rahman Surya</a>
-</div>
+
