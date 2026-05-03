@@ -71,8 +71,6 @@ const DEFAULT_COUNTRY_CODE = '62';
 2. Run the application:
 
 ```bash
-npm start
-# or
 node app.js
 ```
 
