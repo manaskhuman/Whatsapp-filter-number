@@ -14,7 +14,7 @@ A fast, interactive, and powerful CLI-based tool to mass-filter and check if pho
 
 ---
 
-## 🚨 Project Status: Revived & 100% Working
+## 🚨 Status: Revived & 100% Working
 > **Good news!** This repository has been completely overhauled. We migrated from the abandoned original library to the actively maintained `wwebjs` fork. All "No Valid QR Code" and Multi-Device versioning issues have been fully resolved.
 
 ---
