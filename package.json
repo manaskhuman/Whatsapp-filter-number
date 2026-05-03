@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-checker",
   "version": "1.0.0",
-  "description": "WhatsApp number checker bot using whatsapp-web.js",
+  "description": "WhatsApp number checker",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
