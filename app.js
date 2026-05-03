@@ -10,7 +10,7 @@ const readline = require('readline');
 // Set your default country code here (without '+')
 // This will replace the leading '0' in phone numbers.
 // Example: '62' for Indonesia, '1' for US, '44' for UK, '91' for India
-const DEFAULT_COUNTRY_CODE = '62'; 
+const DEFAULT_COUNTRY_CODE = '62';
 // ==========================================
 
 const rl = readline.createInterface({
@@ -29,14 +29,14 @@ class App {
    clearScreen() {
       console.clear();
       console.log(chalk.cyan.bold('='.repeat(55)));
-      console.log(chalk.cyan.bold('        WHATSAPP NUMBER FILTER & CHECKER PRO'));
+      console.log(chalk.cyan.bold('        WHATSAPP NUMBER FILTER'));
       console.log(chalk.cyan.bold('='.repeat(55) + '\n'));
    }
 
    async start() {
       try {
          this.clearScreen();
-         console.log(chalk.yellow('⏳ Starting WhatsApp Web Client...'));
+         console.log(chalk.yellow(' Starting WhatsApp Web Client...'));
 
          this.client = new Client({
             authStrategy: new LocalAuth({
@@ -67,7 +67,7 @@ class App {
             console.log(`${chalk.green('✓')} Client connected successfully`);
             console.log(`${chalk.cyan('•')} Account : ${chalk.white(clientInfo?.pushname || 'Unknown')}`);
             console.log(`${chalk.cyan('•')} Number  : ${chalk.white(clientInfo?.wid?.user || 'Unknown')}\n`);
-            
+
             await new Promise(resolve => setTimeout(resolve, 1500));
             this.showMenu();
          });
@@ -92,7 +92,7 @@ class App {
 
    async showMenu() {
       this.clearScreen();
-      console.log(chalk.yellow.bold(' 📌 MAIN MENU '));
+      console.log(chalk.yellow.bold('  MAIN MENU '));
       console.log(chalk.gray('-------------------------------------------------------'));
       console.log(`  ${chalk.cyan.bold('[1]')} Check Numbers from File ${chalk.gray('(numbers.txt)')}`);
       console.log(`  ${chalk.cyan.bold('[2]')} Check Number Manually`);
@@ -113,7 +113,7 @@ class App {
             await this.logoutDevice();
             break;
          case '4':
-            console.log(chalk.green('\n👋 Exiting application. Goodbye!\n'));
+            console.log(chalk.green('\n Exiting application. Goodbye!\n'));
             await this.client.destroy();
             process.exit(0);
             break;
@@ -284,4 +284,4 @@ class App {
 }
 
 const whatsappApp = new App();
-whatsappApp.start();
+whatsappApp.start(); 
