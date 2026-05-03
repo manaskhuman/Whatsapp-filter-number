@@ -1,6 +1,8 @@
 <div align="center">
 
-# 📱 WhatsApp Number Filter
+<img src="wa-filter-number.svg" alt="WhatsApp Number Filter Logo" />
+
+<br>
 
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D%2014.0.0-brightgreen.svg)](https://nodejs.org/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/rahmansurya/Whatsapp-filter-number/commits/main)
