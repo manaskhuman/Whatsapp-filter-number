@@ -4,6 +4,15 @@ const chalk = require('chalk');
 const fs = require('fs');
 const readline = require('readline');
 
+// ==========================================
+// CONFIGURATION
+// ==========================================
+// Set your default country code here (without '+')
+// This will replace the leading '0' in phone numbers.
+// Example: '62' for Indonesia, '1' for US, '44' for UK, '91' for India
+const DEFAULT_COUNTRY_CODE = '62'; 
+// ==========================================
+
 const rl = readline.createInterface({
    input: process.stdin,
    output: process.stdout
@@ -20,14 +29,14 @@ class App {
    clearScreen() {
       console.clear();
       console.log(chalk.cyan.bold('='.repeat(55)));
-      console.log(chalk.cyan.bold('        WHATSAPP NUMBER FILTER '));
+      console.log(chalk.cyan.bold('        WHATSAPP NUMBER FILTER & CHECKER PRO'));
       console.log(chalk.cyan.bold('='.repeat(55) + '\n'));
    }
 
    async start() {
       try {
          this.clearScreen();
-         console.log(chalk.yellow('Starting WhatsApp Web Client...'));
+         console.log(chalk.yellow('⏳ Starting WhatsApp Web Client...'));
 
          this.client = new Client({
             authStrategy: new LocalAuth({
@@ -58,7 +67,7 @@ class App {
             console.log(`${chalk.green('✓')} Client connected successfully`);
             console.log(`${chalk.cyan('•')} Account : ${chalk.white(clientInfo?.pushname || 'Unknown')}`);
             console.log(`${chalk.cyan('•')} Number  : ${chalk.white(clientInfo?.wid?.user || 'Unknown')}\n`);
-
+            
             await new Promise(resolve => setTimeout(resolve, 1500));
             this.showMenu();
          });
@@ -83,7 +92,7 @@ class App {
 
    async showMenu() {
       this.clearScreen();
-      console.log(chalk.yellow.bold('MAIN MENU '));
+      console.log(chalk.yellow.bold(' 📌 MAIN MENU '));
       console.log(chalk.gray('-------------------------------------------------------'));
       console.log(`  ${chalk.cyan.bold('[1]')} Check Numbers from File ${chalk.gray('(numbers.txt)')}`);
       console.log(`  ${chalk.cyan.bold('[2]')} Check Number Manually`);
@@ -104,7 +113,7 @@ class App {
             await this.logoutDevice();
             break;
          case '4':
-            console.log(chalk.green('\n Exiting application. Goodbye!\n'));
+            console.log(chalk.green('\n👋 Exiting application. Goodbye!\n'));
             await this.client.destroy();
             process.exit(0);
             break;
@@ -116,14 +125,12 @@ class App {
    }
 
    formatNumber(number) {
-      let formattedNumber = number.trim().replace(/^\+/, '');
+      // Remove all non-numeric characters (like spaces, +, -, etc)
+      let formattedNumber = number.toString().replace(/\D/g, '');
 
-      if (!formattedNumber.startsWith('62')) {
-         if (formattedNumber.startsWith('0')) {
-            formattedNumber = '62' + formattedNumber.substring(1);
-         } else {
-            formattedNumber = '62' + formattedNumber;
-         }
+      // If the number starts with '0', replace it with the default country code
+      if (formattedNumber.startsWith('0')) {
+         formattedNumber = DEFAULT_COUNTRY_CODE + formattedNumber.substring(1);
       }
 
       return formattedNumber;
